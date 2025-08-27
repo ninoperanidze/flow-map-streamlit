@@ -10,9 +10,10 @@ st.title("Flow Map")
 
 # --- Google Drive file setup ---
 @st.cache_data(show_spinner=True)
-def download_files_from_gdrive():
+def download_files_from_gdrive(force_refresh=False):
     """Download required files from Google Drive"""
     import os
+    import shutil
     
     # Create temp directory if it doesn't exist
     out_dir = "gdown_temp"
@@ -24,6 +25,14 @@ def download_files_from_gdrive():
         "Map of routes data.csv", 
         "nace.csv"
     ]
+    
+    # If force refresh is requested, delete existing files
+    if force_refresh:
+        st.info("Refreshing data from Google Drive...")
+        for filename in required_files:
+            file_path = os.path.join(out_dir, filename)
+            if os.path.exists(file_path):
+                os.remove(file_path)
     
     # Check if files already exist
     all_files_exist = all(os.path.exists(os.path.join(out_dir, filename)) for filename in required_files)
@@ -53,8 +62,18 @@ def download_files_from_gdrive():
     
     return out_dir
 
-# Download files from Google Drive
-out_dir = download_files_from_gdrive()
+# Add refresh data button in sidebar
+st.sidebar.header("Data Management")
+if st.sidebar.button("🔄 Refresh Data", help="Download the latest files from Google Drive"):
+    # Clear the cache and force refresh
+    download_files_from_gdrive.clear()
+    st.cache_data.clear()
+    out_dir = download_files_from_gdrive(force_refresh=True)
+    st.sidebar.success("Data refreshed! The app will reload with the latest data.")
+    st.rerun()
+else:
+    # Download files from Google Drive (normal flow)
+    out_dir = download_files_from_gdrive()
 main_file = os.path.join(out_dir, "flatfile_eu-ic-io_ind-by-ind_23ed_2021.csv")
 countries_file = os.path.join(out_dir, "Map of routes data.csv")
 nace_file = os.path.join(out_dir, "nace.csv")
