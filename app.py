@@ -471,7 +471,7 @@ r = pdk.Deck(
 )
 
 # Display results
-st.subheader(f"Top {len(flow_summary)} Export Lanes (Value in EUR)")
+st.subheader(f"Top {len(flow_summary)} Lanes (Value in EUR)")
 st.pydeck_chart(r, use_container_width=True)
 
 # Display summary statistics
@@ -489,8 +489,9 @@ if not flow_summary.empty:
         st.metric("Average Flow Value (EUR)", f"{flow_summary['obsValue'].mean():,.0f}")
     
     # Show top flows table
-    st.subheader("Top Export Lanes")
+    st.subheader("Top Lanes")
     display_df = flow_summary.copy()
     display_df["obsValue"] = display_df["obsValue"].apply(lambda x: f"{x:,.0f}")
     display_df.columns = ["Origin", "Destination", "Value (EUR)"]
     st.dataframe(display_df, use_container_width=True)
+
