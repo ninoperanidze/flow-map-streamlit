@@ -156,11 +156,21 @@ if not selected_dest:
 @st.cache_data(show_spinner=False)
 def prepare_merged_data(main_df, countries_df, nace_df, selected_origin, selected_dest):
     # Filter main data and exclude domestic flows (same origin and destination)
+    # Use more memory-efficient filtering
     filtered_df = main_df[
         main_df["refArea"].isin(selected_origin) &
         main_df["counterpartArea"].isin(selected_dest) &
         (main_df["refArea"] != main_df["counterpartArea"])  # Exclude domestic flows
-    ].copy()
+    ]
+    
+    # If dataset is too large, sample it to prevent memory issues
+    if len(filtered_df) > 500000:  # If more than 500k rows
+        st.info("Large dataset detected. Sampling data for better performance...")
+        # Sample the data but keep the highest values
+        filtered_df = filtered_df.nlargest(500000, 'obsValue')
+    
+    # Create a copy only after filtering
+    filtered_df = filtered_df.copy()
     
     # Merge with countries data for origin coordinates
     merged_df = filtered_df.merge(
@@ -169,8 +179,8 @@ def prepare_merged_data(main_df, countries_df, nace_df, selected_origin, selecte
         right_on=country_col, 
         how="left"
     )
-    merged_df = merged_df.rename(columns={lat_col: "origin_lat", lon_col: "origin_lon"})
-    merged_df = merged_df.drop(columns=[country_col])
+    merged_df.rename(columns={lat_col: "origin_lat", lon_col: "origin_lon"}, inplace=True)
+    merged_df.drop(columns=[country_col], inplace=True)
     
     # Merge with countries data for destination coordinates
     merged_df = merged_df.merge(
@@ -179,18 +189,18 @@ def prepare_merged_data(main_df, countries_df, nace_df, selected_origin, selecte
         right_on=country_col, 
         how="left"
     )
-    merged_df = merged_df.rename(columns={lat_col: "dest_lat", lon_col: "dest_lon"})
-    merged_df = merged_df.drop(columns=[country_col])
+    merged_df.rename(columns={lat_col: "dest_lat", lon_col: "dest_lon"}, inplace=True)
+    merged_df.drop(columns=[country_col], inplace=True)
     
     # Merge with NACE for row sectors
     merged_df = merged_df.merge(nace_df, left_on="rowIi", right_on="Code", how="left")
-    merged_df = merged_df.rename(columns={"Name": "rowIi_name"})
-    merged_df = merged_df.drop(columns=["Code"])
+    merged_df.rename(columns={"Name": "rowIi_name"}, inplace=True)
+    merged_df.drop(columns=["Code"], inplace=True)
     
     # Merge with NACE for column sectors
     merged_df = merged_df.merge(nace_df, left_on="colIi", right_on="Code", how="left")
-    merged_df = merged_df.rename(columns={"Name": "colIi_name"})
-    merged_df = merged_df.drop(columns=["Code"])
+    merged_df.rename(columns={"Name": "colIi_name"}, inplace=True)
+    merged_df.drop(columns=["Code"], inplace=True)
     
     return merged_df
 
@@ -494,4 +504,3 @@ if not flow_summary.empty:
     display_df["obsValue"] = display_df["obsValue"].apply(lambda x: f"{x:,.0f}")
     display_df.columns = ["Origin", "Destination", "Value (EUR)"]
     st.dataframe(display_df, use_container_width=True)
-
