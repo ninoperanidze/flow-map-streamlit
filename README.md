@@ -1,6 +1,7 @@
 # European Export Lanes Visualization
 
 A Streamlit application for visualizing the largest export lanes in Europe with interactive filtering and 3D map visualization.
+App link: https://flow-map-app-lktstbxvu3f5ckzhuqudfm.streamlit.app/
 
 ## Features
 
@@ -57,3 +58,4 @@ This app is designed to be deployed on Streamlit Cloud. The data files are autom
 - Bubble sizes reflect total imports per destination for selected sectors
 - Arc thickness represents flow value with logarithmic scaling
 - Square root scaling for bubble sizes to reduce sensitivity to value differences
+
