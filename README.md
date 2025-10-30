@@ -13,6 +13,12 @@ App link: https://flow-map-app-lktstbxvu3f5ckzhuqudfm.streamlit.app/
 - Optimized bubble sizing with square root scaling
 - Clean, minimal arc styling for better readability
 
+## Example
+
+Here is an example of the app in action:
+
+![Flow Map App Example 1](Example.png)
+
 ## Data Sources
 
 The application uses three main datasets:
@@ -58,4 +64,5 @@ This app is designed to be deployed on Streamlit Cloud. The data files are autom
 - Bubble sizes reflect total imports per destination for selected sectors
 - Arc thickness represents flow value with logarithmic scaling
 - Square root scaling for bubble sizes to reduce sensitivity to value differences
+
 
